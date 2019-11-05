@@ -1,1 +1,1 @@
-# golamg-chatapp
+# golang-chatapp
