@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/stretchr/objx"
+
 	"github.com/stretchr/gomniauth/providers/facebook"
 	"github.com/stretchr/gomniauth/providers/github"
 	"github.com/stretchr/gomniauth/providers/google"
@@ -31,7 +33,13 @@ func (t *templateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			template.Must(template.ParseFiles(filepath.Join("templates",
 				t.filename)))
 	})
-	err := t.templ.Execute(w, r) //戻り値をチェックする処理を追加
+	data := map[string]interface{}{
+		"Host": r.Host,
+	}
+	if authCookie, err := r.Cookie("auth"); err == nil {
+		data["UserData"] = objx.MustFromBase64(authCookie.Value)
+	}
+	err := t.templ.Execute(w, data) //戻り値をチェックする処理を追加
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,8 +51,8 @@ func main() {
 	// Gomniauth のセットアップ
 	gomniauth.SetSecurityKey("CUgAcQhgAO4o30ePr55MGUkwM7Ur85EbCu3nlPdizhLBMCMq6FcihtVR7kxOrlkl")
 	gomniauth.WithProviders(
-		facebook.New("クライアントID", "秘密の値", "http://localhost:8080/auth/callback/facebook"),
-		github.New("クライアントID", "秘密の値", "http://localhost:8080/auth/callback/github"),
+		facebook.New("クライアントID", "秘密の値", "http://localhost:8080/auth/callback/facebook"), // TODO: URLをアプリ認証に登録する
+		github.New("クライアントID", "秘密の値", "http://localhost:8080/auth/callback/github"),     // TODO: URLをアプリ認証に登録する
 		google.New("31954288968-sfo7524s135kpljpkq7sh4kmr6n3mfs5.apps.googleusercontent.com", "oxkcfwxPNhgyc78jA6zoLsa2", "http://localhost:8080/auth/callback/google"),
 	)
 	r := newRoom()
