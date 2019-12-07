@@ -25,11 +25,9 @@ func (c *client) read() {
 		if err := c.socket.ReadJSON(&msg); err == nil {
 			msg.When = time.Now()
 			msg.Name = c.userData["name"].(string)
-			if avatarURL, ok := c.userData["avatar_url"]; ok {
-				msg.AvatarURL = avatarURL.(string) // TODO: エラーの場合nilが入るのでその処理
-				log.Println("%s", msg.AvatarURL)   //取得出来ているのになんで画像表示されない？？？やっぱりhtmlか？？
-			} else if !ok {
-				log.Println("avatar_url is nil")
+			msg.AvatarURL, err = c.room.avatar.GetAvatarURL(c)
+			if err != nil {
+				log.Println(err)
 			}
 			c.room.forward <- msg
 		} else {

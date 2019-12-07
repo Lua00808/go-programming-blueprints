@@ -10,26 +10,29 @@ import (
 )
 
 type room struct {
-	//forwardは他のクライアントに転送するためのメッセージを保持するチャネル
+	// forwardは他のクライアントに転送するためのメッセージを保持するチャネル
 	forward chan *message
-	//joinはチャットルームに参加しようとしているクライアントのためのチャネル
+	// joinはチャットルームに参加しようとしているクライアントのためのチャネル
 	join chan *client
-	//leaveはチャットルーム空退室しようとしているクライアントのためのチャネル
+	// leaveはチャットルーム空退室しようとしているクライアントのためのチャネル
 	leave chan *client
-	//clientsには在籍しているすべてのクライアントが保持される
+	// clientsには在籍しているすべてのクライアントが保持される
 	clients map[*client]bool
-	//tracer はチャットルーム上で行われた操作のログを受取ります。
+	// tracerはチャットルーム上で行われた操作のログを受取ります。
 	tracer trace.Tracer
+	// avatarはアバターの情報を取得します。
+	avatar Avatar
 }
 
 //newRoomはすぐに利用できるチャットルームを生成して返す。
-func newRoom() *room {
+func newRoom(avatar Avatar) *room {
 	return &room{
 		forward: make(chan *message),
 		join:    make(chan *client),
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
+		avatar:  avatar,
 	}
 }
 
