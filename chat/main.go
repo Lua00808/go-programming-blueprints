@@ -74,6 +74,9 @@ func main() {
 		w.WriteHeader(http.StatusTemporaryRedirect)
 
 	})
+	http.Handle("/avatars/",
+		http.StripPrefix("/avatars/",
+			http.FileServer(http.Dir("./avatars")))) // P77 Decoratorパターン？
 	//チャットルームを開始
 	go r.run()
 	//web サーバー起動
