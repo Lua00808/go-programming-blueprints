@@ -2,6 +2,8 @@ package main
 
 import (
 	"errors"
+	"io/ioutil"
+	"path/filepath"
 )
 
 // ErrNoAvatarURL はAvatarインスタンスがアバターのURLを返すことが出来ない
@@ -48,10 +50,19 @@ var UseFileSystemAvatar FileSystemAvatar
 func (FileSystemAvatar) GetAvatarURL(c *client) (string, error) {
 	if userid, ok := c.userData["userid"]; ok {
 		if useridStr, ok := userid.(string); ok {
-			return "/avatars/" + useridStr + ".jpg", nil
+			if files, err := ioutil.ReadDir("avatars"); err == nil {
+				for _, file := range files {
+					if file.IsDir() {
+						continue // for 文の先頭に戻る(後続の処理をしない)
+					}
+					if match, _ := filepath.Match(useridStr+"*", file.Name()); match {
+						return "/avatars/" + file.Name(), nil
+					}
+				}
+			}
 		}
 	}
 	return "", ErrNoAvatarURL
 }
 
-// main.go に avatar の実装を追加
+// リファクタリングと最適化から
