@@ -19,6 +19,9 @@ import (
 	"github.com/stretchr/gomniauth"
 )
 
+// 現在アクティブな Avatar の実装
+var avatars Avatar = UseFileSystemAvatar
+
 // templ は1つのテンプレートを表す
 type templateHandler struct {
 	once     sync.Once
@@ -85,3 +88,5 @@ func main() {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
+
+// コードの整理とテストから
