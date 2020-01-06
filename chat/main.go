@@ -20,7 +20,11 @@ import (
 )
 
 // 現在アクティブな Avatar の実装
-var avatars Avatar = UseFileSystemAvatar
+var avatars Avatar = TryAvatars{
+	UseFileSystemAvatar,
+	UseAuthAvatar,
+	UseGravatar,
+}
 
 // templ は1つのテンプレートを表す
 type templateHandler struct {
@@ -58,7 +62,7 @@ func main() {
 		github.New("クライアントID", "秘密の値", "http://localhost:8080/auth/callback/github"),     // TODO: URLをアプリ認証に登録する
 		google.New("31954288968-sfo7524s135kpljpkq7sh4kmr6n3mfs5.apps.googleusercontent.com", "oxkcfwxPNhgyc78jA6zoLsa2", "http://localhost:8080/auth/callback/google"),
 	)
-	r := newRoom(UseFileSystemAvatar)
+	r := newRoom()
 	r.tracer = trace.New(os.Stdout)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
