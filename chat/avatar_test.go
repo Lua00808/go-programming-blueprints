@@ -13,8 +13,7 @@ func TestAuthAvatar(t *testing.T) {
 	var authAvatar AuthAvatar
 	testUser := &gomniauthtest.TestUser{}
 	testUser.On("AvatarURL").Return("", ErrNoAvatarURL)
-	testChatUser := &testUser{User: testUser}
-	client := new(client)
+	testChatUser := &chatUser{User: testUser}
 	url, err := authAvatar.GetAvatarURL(testChatUser)
 	if err != ErrNoAvatarURL {
 		t.Error("値が存在しない場合、AuthAvatar.GetAvatarURLは" +
@@ -25,7 +24,7 @@ func TestAuthAvatar(t *testing.T) {
 	testUser = &gomniauthtest.TestUser{}
 	testChatUser.User = testUser
 	testUser.On("AvatarURL").Return(testURL, nil)
-	url, err := authAvatar.GetAvatarURL(testChatUser)
+	url, err = authAvatar.GetAvatarURL(testChatUser)
 	if err != nil {
 		t.Error("値が存在する場合、AuthAvatar.GetAvatarURLは" +
 			"エラーを返すべきではありません。")
