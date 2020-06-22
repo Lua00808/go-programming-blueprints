@@ -1,1 +1,1 @@
-# golang-chatapp
+# go-programming-blueprints
