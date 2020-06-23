@@ -10,7 +10,7 @@ import (
 
 const (
 	duplicateVowel bool = true
-	removeVowel    bool = true
+	removeVowel    bool = false
 )
 
 func randBool() bool {
@@ -41,6 +41,6 @@ func main() {
 				}
 			}
 		}
-		fmt.Println(word)
+		fmt.Println(string(word))
 	}
 }
