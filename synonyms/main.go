@@ -11,6 +11,9 @@ import (
 
 func main() {
 	apiKey := os.Getenv("BHT_APIKEY")
+	if len(apiKey) == 0 {
+		log.Fatalf("APIキーの取得に失敗しました: APIKEY = %v", apiKey)
+	}
 	thesaurus := &thesaurus.BigHuge{APIKey: apiKey}
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
