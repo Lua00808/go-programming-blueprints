@@ -5,6 +5,7 @@ package thesaurus
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -26,12 +27,19 @@ func (b *BigHuge) Synonyms(term string) ([]string, error) {
 	if err != nil {
 		return syns, fmt.Errorf("bighuge: %qの類語検索に失敗しました: %v", term, err)
 	}
+	if response.StatusCode != 200 {
+		log.Fatalf("bighuge: %qの類語は見つかりませんでした", term) // 誤字で検索して response が空のとき
+	}
 	var data synonyms
 	defer response.Body.Close()
 	if err := json.NewDecoder(response.Body).Decode(&data); err != nil {
 		return syns, err
 	}
-	syns = append(syns, data.Noun.Syn...)
-	syns = append(syns, data.Verb.Syn...)
+	if data.Noun != nil {
+		syns = append(syns, data.Noun.Syn...)
+	}
+	if data.Verb != nil {
+		syns = append(syns, data.Verb.Syn...)
+	}
 	return syns, nil
 }
