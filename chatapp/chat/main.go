@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/gomniauth/providers/github"
 	"github.com/stretchr/gomniauth/providers/google"
 
-	"github.com/golang-chatapp/trace"
+	"github.com/go-programming-blueprints/chatapp/trace"
 	"github.com/stretchr/gomniauth"
 )
 
