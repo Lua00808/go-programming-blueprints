@@ -1,4 +1,4 @@
-module github.com/golang-chatapp
+module github.com/go-programming-blueprints
 
 go 1.13
 

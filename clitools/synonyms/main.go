@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/golang-chatapp/thesaurus"
+	"github.com/go-programming-blueprints/clitools/thesaurus"
 )
 
 func main() {
