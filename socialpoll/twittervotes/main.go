@@ -1,11 +1,20 @@
 package main
 
 import (
-	"fmt"
+	"log"
+
+	"gopkg.in/mgo.v2"
 )
 
-func main() {
-	fmt.Println("hello world")
-}
+var db *mgo.Session
 
-// TODO: API 環境変数の設定
+func dialDb() error {
+	var err error
+	log.Println("MongoDB にダイアル中: localhost")
+	db, err = mgo.Dial("localhost")
+	return err
+}
+func closeDb() {
+	db.Close()
+	log.Println("データベース接続が閉じられました")
+}
