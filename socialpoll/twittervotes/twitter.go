@@ -88,3 +88,7 @@ func makeRequest(req *http.Request, params url.Values) (*http.Response, error) {
 		authClient.AuthorizationHeader(creds, "POST", req.URL, params))
 	return httpClient.Do(req)
 }
+
+type tweet struct {
+	Text string
+}
