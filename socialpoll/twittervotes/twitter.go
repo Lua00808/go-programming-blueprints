@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -91,4 +92,26 @@ func makeRequest(req *http.Request, params url.Values) (*http.Response, error) {
 
 type tweet struct {
 	Text string
+}
+
+func readFromTwitter(votes chan<- string) {
+	options, err := loadOptions()
+	if err != nil {
+		log.Println("選択肢の読み込みに失敗しました:", err)
+		return
+	}
+	u, err := url.Parse("https://stream.twitter.com/1.1/statuses/filter.json")
+	if err != nil {
+		log.Println("URL の解析に失敗しました:", err)
+		return
+	}
+	query := make(url.Values)
+	query.Set("track", strings.Join(options, ","))
+	req, err := http.NewRequest("POST", u.String(),
+		strings.NewReader(query.Encode()))
+	if err != nil {
+		log.Println("検索のリクエストの作成に失敗しました:", err)
+		return
+	}
+
 }
