@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"io"
 	"log"
 	"net"
@@ -112,6 +113,24 @@ func readFromTwitter(votes chan<- string) {
 	if err != nil {
 		log.Println("検索のリクエストの作成に失敗しました:", err)
 		return
+	}
+	resp, err := makeRequest(req, query)
+	if err != nil {
+		log.Println("検索のリクエストに失敗しました")
+	}
+	reader = resp.Body
+	decoder := json.NewDecoder(reader)
+	for {
+		var tweet tweet
+		if err := decoder.Decode(&tweet); err != nil {
+			break
+		}
+		for _, option := range options {
+			if strings.Contains(strings.ToLower(tweet.Text), strings.ToLower(option)) {
+				log.Println("投票:", option)
+				votes <- option
+			}
+		}
 	}
 
 }
