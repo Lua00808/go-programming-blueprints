@@ -2,6 +2,11 @@ package main
 
 import (
 	"log"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
+	"time"
 
 	"github.com/nsqio/go-nsq"
 	"gopkg.in/mgo.v2"
@@ -9,13 +14,13 @@ import (
 
 var db *mgo.Session
 
-func dialDb() error {
+func dialdb() error {
 	var err error
 	log.Println("MongoDB にダイアル中: localhost")
 	db, err = mgo.Dial("localhost")
 	return err
 }
-func closeDb() {
+func closedb() {
 	db.Close()
 	log.Println("データベース接続が閉じられました")
 }
@@ -50,4 +55,44 @@ func publishVotes(votes <-chan string) <-chan struct{} {
 		log.Println("Publisher: 停止しました")
 	}()
 	return stopchan
+}
+
+func main() {
+	var stoplock sync.Mutex
+	stop := false
+	stopChan := make(chan struct{}, 1)
+	signalChan := make(chan os.Signal, 1)
+	go func() {
+		<-signalChan
+		stoplock.Lock()
+		stop = true
+		stoplock.Unlock()
+		log.Println("停止します...")
+		stopChan <- struct{}{}
+		closeConn()
+	}()
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	if err := dialdb(); err != nil {
+		log.Println("MonogDB へのダイヤルに失敗しました:", err)
+	}
+	defer closedb()
+	// 処理を開始します。
+	votes := make(chan string) // 投票結果のためのチャネル
+	publisherStoppedChan := publishVotes(votes)
+	twitterStoppedChan := startTwitterStream(stopChan, votes)
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			closeConn()
+			stoplock.Lock()
+			if stop {
+				stoplock.Unlock()
+				break
+			}
+			stoplock.Unlock()
+		}
+	}()
+	<-twitterStoppedChan
+	close(votes)
+	<-publisherStoppedChan
 }
