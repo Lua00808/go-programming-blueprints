@@ -23,7 +23,7 @@ func main() {
 	}
 	defer db.Close()
 	mux := http.NewServeMux()
-	mux.HandlerFunc("/polls/", withCORS(withVars(withData(db, withAPIKey(handlePolls)))))
+	mux.HandleFunc("/polls/", withCORS(withVars(withData(db, withAPIKey(handlePolls)))))
 	log.Println("Web サーバーを開始します:", *addr)
 	graceful.Run(*addr, 1*time.Second, mux)
 	log.Println("停止します...")
@@ -42,7 +42,7 @@ func isValidAPIKey(key string) bool {
 	return key == "abc123"
 }
 
-func withData(b *mgo.Session, f http.HandlerFunc) http.HandlerFunc {
+func withData(d *mgo.Session, f http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		thisDb := d.Copy()
 		defer thisDb.Close()
