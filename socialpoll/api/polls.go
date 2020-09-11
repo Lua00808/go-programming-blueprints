@@ -37,7 +37,7 @@ func handlePollsGet(w http.ResponseWriter, r *http.Request) {
 	p := NewPath(r.URL.Path)
 	if p.HasID() {
 		// 特定の調査項目の詳細
-		q = c.FindId(bson.IsObjectIdHex(p.ID)) // Todo: 中身が null になる
+		q = c.FindId(bson.ObjectIdHex(p.ID))
 	} else {
 		// すべての調査項目のリスト
 		q = c.Find(nil)
