@@ -6,7 +6,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/go-programming-blueprints/meander"
+	"github.com/go-programming-blueprints/chapter7/meander"
 )
 
 func main() {
