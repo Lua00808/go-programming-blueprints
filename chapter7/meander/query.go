@@ -3,8 +3,12 @@ package meander
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"log"
 	"net/url"
+	"sync"
+	"time"
 )
 
 var APIKey string
@@ -44,7 +48,7 @@ func (p *Place) Public() interface{} {
 
 type Query struct {
 	Lat          float64
-	Lng          float64
+	Lng          float64 http.ResponseWriter, r *http.Request
 	Journey      []string
 	Radius       int
 	CostRangeStr string
@@ -72,4 +76,39 @@ func (q *Query) find(types string) (*googleResponse, error) {
 		return nil, err
 	}
 	return &response, nil
+}
+
+func (q *Query) Run() []interface{} {
+	rand.Seed(time.Now().UnixNano())
+	var w sync.WaitGroup
+	var l sync.Mutex
+	places := make([]interface{}, len(q.Journey))
+	for i, r := range q.Journey {
+		w.Add(1)
+		go func(types string, i int) {
+			defer w.Done()
+			response, err := q.find(types)
+			if err != nil {
+				log.Println("施設の検索に失敗しました:", err)
+				return
+			}
+			if len(response.Results) == 0 {
+				log.Println("施設が見つかりませんでした:", types)
+				return
+			}
+			for _, result := range response.Results {
+				for _, photo := ra ge result.Photos {
+					photo.URL = "https://maps.googleapis.com/maps/api/place/photo?" +
+						"maxwidth=1000&photoreference" + photo.PhotoRef +
+						"&key=" + APIKey
+				}
+			}
+			randI := rand.Intn(len(response.Results))
+			l.Lock()
+			Places[i] = response.Results[randI]
+			l.Unlock()
+		}(r, i)
+	}
+	w.Wait()		// すべてのリクエストの完了を待つ
+	return places
 }
