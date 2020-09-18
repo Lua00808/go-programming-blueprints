@@ -3,9 +3,9 @@ package meander
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
-	"log"
 	"net/url"
 	"sync"
 	"time"
@@ -48,7 +48,7 @@ func (p *Place) Public() interface{} {
 
 type Query struct {
 	Lat          float64
-	Lng          float64 http.ResponseWriter, r *http.Request
+	Lng          float64
 	Journey      []string
 	Radius       int
 	CostRangeStr string
@@ -97,7 +97,7 @@ func (q *Query) Run() []interface{} {
 				return
 			}
 			for _, result := range response.Results {
-				for _, photo := ra ge result.Photos {
+				for _, photo := range result.Photos {
 					photo.URL = "https://maps.googleapis.com/maps/api/place/photo?" +
 						"maxwidth=1000&photoreference" + photo.PhotoRef +
 						"&key=" + APIKey
@@ -105,10 +105,10 @@ func (q *Query) Run() []interface{} {
 			}
 			randI := rand.Intn(len(response.Results))
 			l.Lock()
-			Places[i] = response.Results[randI]
+			places[i] = response.Results[randI]
 			l.Unlock()
 		}(r, i)
 	}
-	w.Wait()		// すべてのリクエストの完了を待つ
+	w.Wait() // すべてのリクエストの完了を待つ
 	return places
 }
