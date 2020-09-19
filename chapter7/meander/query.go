@@ -78,6 +78,7 @@ func (q *Query) find(types string) (*googleResponse, error) {
 	return &response, nil
 }
 
+// 問い合わせを一斉に行い、その結果を返します
 func (q *Query) Run() []interface{} {
 	rand.Seed(time.Now().UnixNano())
 	var w sync.WaitGroup
@@ -99,7 +100,7 @@ func (q *Query) Run() []interface{} {
 			for _, result := range response.Results {
 				for _, photo := range result.Photos {
 					photo.URL = "https://maps.googleapis.com/maps/api/place/photo?" +
-						"maxwidth=1000&photoreference" + photo.PhotoRef +
+						"maxwidth=1000&photoreference=" + photo.PhotoRef +
 						"&key=" + APIKey
 				}
 			}
