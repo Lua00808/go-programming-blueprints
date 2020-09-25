@@ -8,6 +8,7 @@ require (
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/gorilla/websocket v1.4.1
 	github.com/joeshaw/envdecode v0.0.0-20200121155833-099f1fc765bd
+	github.com/matryer/filedb v0.0.0-20141103144311-3641db67a8c9
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/nsqio/go-nsq v1.0.8
 	github.com/stretchr/codecs v0.0.0-20170403063245-04a5b1e1910d // indirect

@@ -17,7 +17,7 @@ type path struct {
 }
 
 func (p path) String() string {
-	return fmt.Printf("%s [%s]", p.Path, p.Hash)
+	return fmt.Sprintf("%s [%s]", p.Path, p.Hash)
 }
 
 func main() {
@@ -38,6 +38,18 @@ func main() {
 		return
 	}
 
+	db, err := filedb.Dial(*dbpath)
+	if err != nil {
+		fatalErr = err
+		return
+	}
+	defer db.Close()
+	col, err := db.C("paths")
+	if err != nil {
+		fatalErr = err
+		return
+	}
+
 	switch strings.ToLower(args[0]) {
 	case "list":
 		var path path
@@ -51,18 +63,33 @@ func main() {
 			return false
 		})
 	case "add":
+		if len(args[1:]) == 0 {
+			fatalErr = errors.New("追加するパスを指定してください")
+			return
+		}
+		for _, p := range args[1:] {
+			path := &path{Path: p, Hash: "まだアーカイブされていません"}
+			if err := col.InsertJSON(path); err != nil {
+				fatalErr = err
+				return
+			}
+			fmt.Printf("+ %s\n", path)
+		}
 	case "remove":
+		var path path
+		col.RemoveEach(func(i int, data []byte) (bool, bool) { // 戻り値 1つ目: 対象の項目が削除されるべきかどうか, 2つ目: 以降の項目への処理を中止するべきかどうか
+			err := json.Unmarshal(data, &path)
+			if err != nil {
+				fatalErr = err
+				return false, true
+			}
+			for _, p := range args[1:] {
+				if path.Path == p {
+					fmt.Printf("- &s\n", path)
+					return true, false
+				}
+			}
+			return false, true
+		})
 	}
-}
-
-db, err := filedb.Dial(*dbpath)
-if err != nil {
-	fatalErr = err
-	return
-}
-defer db.Close()
-col, err := db.C("paths")
-if err != nil {
-	fatalErr = err
-	return
 }
