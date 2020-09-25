@@ -85,11 +85,11 @@ func main() {
 			}
 			for _, p := range args[1:] {
 				if path.Path == p {
-					fmt.Printf("- &s\n", path)
+					fmt.Printf("- %s\n", path)
 					return true, false
 				}
 			}
-			return false, true
+			return false, false
 		})
 	}
 }
